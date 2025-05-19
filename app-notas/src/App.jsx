@@ -9,6 +9,16 @@ function Button({ children, onClick }) {
   );
 }
 
+function Input({ label }) {
+  return (
+    <>
+      <label htmlFor="input">{label}</label>
+      <input type="text" id="input" name="input" />
+      <input type="submit" value="Submit" />
+    </>
+  );
+}
+
 function Card({ children }) {
   return <div className="card">{children}</div>;
 }
@@ -46,26 +56,22 @@ function ListOfTasks({ tasks }) {
   );
 }
 
-function handleAddTask() {
-  console.log("Agregar tarea");
-}
-
 function App() {
-  let tasks = [
-    { id: 1, title: "Comprar huevos" },
-    { id: 2, title: "Comprar leche" },
-    { id: 3, title: "Comprar pan" },
-    { id: 4, title: "Comprar frutas" },
-    { id: 5, title: "Comprar verduras" },
-    { id: 6, title: "Comprar carne" },
-  ];
+  const [tasks, setTasks] = useState([]);
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const inputValue = formData.get("input");
+    setTasks([...tasks, { id: tasks.length + 1, title: inputValue }]);
+  };
 
   return (
     <div className="App">
       <ListOfTasks tasks={tasks} />
-      <Button onClick={handleAddTask}>
-        <p>Agregar tarea</p>
-      </Button>
+      <form onSubmit={handleSubmit}>
+        <Input label="Ingresa una nueva tarea:" />
+      </form>
     </div>
   );
 }
