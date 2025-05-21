@@ -90,15 +90,12 @@ function App() {
     setTasks((tasks) => tasks.filter((task) => task.id !== id));
   };
 
-  const specificTask = tasks.find((task) => task.id === 3);
-
-  console.log(tasks.indexOf(specificTask));
-
   const completedTasks = tasks.filter((task) => task.completed);
   const pendingTasks = tasks.filter((task) => !task.completed);
 
   return (
     <div className="App">
+      {pendingTasks.length === 0 ? <h1>Aún no hay tareas</h1> : null}
       <ListOfTasks tasks={pendingTasks} onComplete={markTaskAsCompleted} />
       <form onSubmit={handleSubmit}>
         <Input label="Ingresa una nueva tarea:" />
