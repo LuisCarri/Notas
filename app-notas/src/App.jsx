@@ -2,97 +2,124 @@ import { useState } from "react";
 import "./App.css";
 
 function Button({ children, onClick }) {
-    return (
-        <button className="btn" onClick={onClick}>
-            {children}
-        </button>
-    );
+  return (
+    <button className="btn" onClick={onClick}>
+      {children}
+    </button>
+  );
 }
 
 function Input({ label }) {
-    return (
-        <>
-            <label htmlFor="input">{label}</label>
-            <input type="text" id="input" name="input" />
-            <input type="submit" value="Submit" />
-        </>
-    );
+  return (
+    <>
+      <label htmlFor="input">{label}</label>
+      <input type="text" id="input" name="input" />
+      <input type="submit" />
+    </>
+  );
 }
 
 function Card({ children }) {
-    return <div className="card">{children}</div>;
+  return <div className="card">{children}</div>;
 }
 
-function Task({ title, isCompleted, onComplete }) {
-    return (
-        <Card>
-            {isCompleted ? (
-                <s>{title}</s>
-            ) : (
-                <>
-                    {title}
-                    <Button onClick={onComplete}>
-                        <p>Marcar tarea como completada</p>
-                    </Button>
-                </>
-            )}
-        </Card>
-    );
+function Task({ title, isCompleted, onComplete, onDelete }) {
+  if (title === "") {
+    return null;
+  }
+  return (
+    <Card>
+      {isCompleted ? (
+        <>
+          <s>{title}</s>
+          <Button onClick={onDelete}>
+            <p>Eliminar tarea</p>
+          </Button>
+        </>
+      ) : (
+        <>
+          {title}
+          <Button onClick={onComplete}>
+            <p>Marcar tarea como completada</p>
+          </Button>
+        </>
+      )}
+    </Card>
+  );
 }
 
-function ListOfTasks({ tasks, onComplete }) {
-    return (
-        <div>
-            {tasks.map((task) => (
-                <Task
-                    key={task.id}
-                    title={task.title}
-                    isCompleted={task.completed}
-                    onComplete={() => onComplete(task.id)}
-                />
-            ))}
-        </div>
-    );
+function ListOfTasks({ tasks, onComplete, onDelete }) {
+  return (
+    <div>
+      {tasks.map((task) => (
+        <Task
+          key={task.id}
+          title={task.title}
+          isCompleted={task.completed}
+          onComplete={() => onComplete(task.id)}
+          onDelete={() => onDelete(task.id)}
+        />
+      ))}
+    </div>
+  );
 }
 
 function App() {
-    const [tasks, setTasks] = useState([]);
-    const [completedTasks, setCompletedTasks] = useState([]);
+  const [tasks, setTasks] = useState([]);
+  const [showCompletedTasks, setShowCompletedTasks] = useState(false);
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        const formData = new FormData(e.target);
-        const inputValue = formData.get("input");
-        setTasks([
-            ...tasks,
-            { id: tasks.length + 1, title: inputValue, completed: false },
-        ]);
-    };
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const inputValue = formData.get("input");
+    setTasks([
+      ...tasks,
+      { id: tasks.length + 1, title: inputValue, completed: false },
+    ]);
+  };
 
-    const recoverCompletedTasks = () => {
-        const completed = tasks.filter((task) => task.completed);
-        setCompletedTasks(completed);
-    };
-
-    const markTaskAsCompleted = (id) => {
-        setTasks((tasks) =>
-            tasks.map((task) =>
-                task.id === id ? { ...task, completed: true } : task
-            )
-        );
-        recoverCompletedTasks();
-    };
-
-    return (
-        <div className="App">
-            <ListOfTasks tasks={tasks} onComplete={markTaskAsCompleted} />
-            <form onSubmit={handleSubmit}>
-                <Input label="Ingresa una nueva tarea:" />
-            </form>
-            <h1>Lista de tareas completadas</h1>
-            <ListOfTasks tasks={completedTasks} />
-        </div>
+  const markTaskAsCompleted = (id) => {
+    setTasks((tasks) =>
+      tasks.map((task) =>
+        task.id === id ? { ...task, completed: true } : task
+      )
     );
+  };
+
+  const handleDeleteTask = (id) => {
+    setTasks((tasks) => tasks.filter((task) => task.id !== id));
+  };
+
+  const specificTask = tasks.find((task) => task.id === 3);
+
+  console.log(tasks.indexOf(specificTask));
+
+  const completedTasks = tasks.filter((task) => task.completed);
+  const pendingTasks = tasks.filter((task) => !task.completed);
+
+  return (
+    <div className="App">
+      <ListOfTasks tasks={pendingTasks} onComplete={markTaskAsCompleted} />
+      <form onSubmit={handleSubmit}>
+        <Input label="Ingresa una nueva tarea:" />
+      </form>
+      {completedTasks.length > 0 ? (
+        <Button
+          onClick={() => {
+            setShowCompletedTasks(!showCompletedTasks);
+          }}
+        >
+          Ver lista de tareas completadas
+        </Button>
+      ) : null}
+      {showCompletedTasks ? (
+        <>
+          <h1>Tareas completadas: </h1>
+          <ListOfTasks tasks={completedTasks} onDelete={handleDeleteTask} />
+        </>
+      ) : null}
+    </div>
+  );
 }
 
 export default App;
