@@ -3,7 +3,10 @@ import "./App.css";
 
 function Button({ children, onClick }) {
   return (
-    <button className="btn" onClick={onClick}>
+    <button
+      className="border-2 border-gray-300/20 text-white p-2 rounded-md text-xs"
+      onClick={onClick}
+    >
       {children}
     </button>
   );
@@ -14,7 +17,7 @@ function Input({ label }) {
     <>
       <label htmlFor="input">{label}</label>
       <input type="text" id="input" name="input" />
-      <input type="submit" />
+      <input className="bg-blue-500 text-white p-2 rounded-md" type="submit" />
     </>
   );
 }
@@ -30,19 +33,19 @@ function Task({ title, isCompleted, onComplete, onDelete }) {
   return (
     <Card>
       {isCompleted ? (
-        <>
+        <div>
           <s>{title}</s>
           <Button onClick={onDelete}>
             <p>Eliminar tarea</p>
           </Button>
-        </>
+        </div>
       ) : (
-        <>
+        <div className="flex justify-between border-2 border-gray-300 rounded-md p-2 m-6 text-xl">
           {title}
           <Button onClick={onComplete}>
             <p>Marcar tarea como completada</p>
           </Button>
-        </>
+        </div>
       )}
     </Card>
   );
@@ -94,7 +97,7 @@ function App() {
   const pendingTasks = tasks.filter((task) => !task.completed);
 
   return (
-    <div className="App">
+    <div className="justify-center items-center flex flex-col">
       {pendingTasks.length === 0 ? <h1>Aún no hay tareas</h1> : null}
       <ListOfTasks tasks={pendingTasks} onComplete={markTaskAsCompleted} />
       <form onSubmit={handleSubmit}>
