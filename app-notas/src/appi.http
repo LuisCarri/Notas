@@ -1,0 +1,6 @@
+#Obtener todas las tareas
+
+#Agregar una nueva tarea
+
+#Eliminar una tarea
+DELETE http://localhost:3000/5

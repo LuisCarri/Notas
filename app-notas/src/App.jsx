@@ -106,18 +106,28 @@ function App() {
     useEffect(() => {
         fetch("http://localhost:3000")
             .then((res) => res.json())
-            .then((data) => setTasks(data.tasks))
+            .then((data) => setTasks(data))
             .catch((err) => console.error(err));
     }, []);
 
     const handleSubmit = (e) => {
-        e.preventDefault();
-        const formData = new FormData(e.target);
-        const inputValue = formData.get("input");
-        setTasks([
-            ...tasks,
-            { id: tasks.length + 1, title: inputValue, completed: false },
-        ]);
+        fetch("http://localhost:3000", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                title: e.target.input.value,
+                completed: false,
+                id: tasks.length + 1,
+            }),
+        })
+            .then((res) => res.json())
+            .then((data) => {
+                setTasks((tasks) => [...tasks, data]);
+                e.target.reset();
+            })
+            .catch((err) => console.error(err));
     };
 
     const markTaskAsCompleted = (id) => {
@@ -129,7 +139,13 @@ function App() {
     };
 
     const handleDeleteTask = (id) => {
-        setTasks((tasks) => tasks.filter((task) => task.id !== id));
+        fetch(`http://localhost:3000/${id}`, {
+            method: "DELETE",
+        })
+            .then(() => {
+                setTasks((tasks) => tasks.filter((task) => task.id !== id));
+            })
+            .catch((err) => console.error(err));
     };
 
     const completedTasks = tasks.filter((task) => task.completed);
