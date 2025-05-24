@@ -10,47 +10,19 @@ function Button({ children, onClick }) {
         </button>
     );
 }
-/*
-Para conectar el backend con el frontend, normalmente necesitas hacer peticiones HTTP (por ejemplo, usando fetch o axios) a tu API backend para obtener, crear, actualizar o eliminar tareas.
 
-Aquí tienes un ejemplo básico usando fetch para obtener tareas desde un backend al cargar el componente App:
-
-1. Agrega useEffect y una función para cargar tareas desde el backend.
-2. Usa fetch para hacer la petición a tu API (ajusta la URL según tu backend).
-
-Ejemplo de cómo podrías hacerlo en App.jsx:
-
-
-function App() {
-  // ... tus estados y funciones
-
-  useEffect(() => {
-    fetch("http://localhost:3001/tasks") // Cambia la URL a la de tu backend
-      .then((res) => res.json())
-      .then((data) => setTasks(data))
-      .catch((err) => console.error(err));
-  }, []);
-
-  // ... resto del componente
-}
-
-Para crear, actualizar o eliminar tareas, reemplaza los métodos setTasks directos por peticiones fetch (POST, PUT, DELETE) a tu backend y actualiza el estado según la respuesta.
-
-Recuerda:
-- El backend debe tener habilitado CORS si el frontend y backend están en dominios/puertos distintos.
-- Ajusta las rutas y métodos HTTP según tu API.
-
-*/
 function Input({ label }) {
     return (
-        <>
-            <label htmlFor="input">{label}</label>
-            <input type="text" id="input" name="input" />
+        <div className="flex flex justify-center items-center">
+            <label className="m-4" htmlFor="input">
+                {label}
+            </label>
+            <input type="text" id="input" name="input" autoComplete="off" />
             <input
-                className="bg-blue-500 text-white p-2 rounded-md"
+                className="bg-blue-500 text-white p-2 rounded-md text-xs bg-transparent border-2 border-gray-300/20"
                 type="submit"
             />
-        </>
+        </div>
     );
 }
 
@@ -90,7 +62,7 @@ function ListOfTasks({ tasks, onComplete, onDelete }) {
                 <Task
                     key={task.id}
                     title={task.title}
-                    isCompleted={task.completed}
+                    isCompleted={task.isCompleted}
                     onComplete={() => onComplete(task.id)}
                     onDelete={() => onDelete(task.id)}
                 />
@@ -118,7 +90,7 @@ function App() {
             },
             body: JSON.stringify({
                 title: e.target.input.value,
-                completed: false,
+                isCompleted: false,
                 id: tasks.length + 1,
             }),
         })
@@ -131,11 +103,24 @@ function App() {
     };
 
     const markTaskAsCompleted = (id) => {
-        setTasks((tasks) =>
-            tasks.map((task) =>
-                task.id === id ? { ...task, completed: true } : task
-            )
-        );
+        fetch(`http://localhost:3000/${id}`, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                completed: true,
+            }),
+        })
+            .then((res) => res.json())
+            .then(() => {
+                setTasks((tasks) =>
+                    tasks.map((task) =>
+                        task.id === id ? { ...task, isCompleted: true } : task
+                    )
+                );
+            })
+            .catch((err) => console.error(err));
     };
 
     const handleDeleteTask = (id) => {
@@ -148,11 +133,11 @@ function App() {
             .catch((err) => console.error(err));
     };
 
-    const completedTasks = tasks.filter((task) => task.completed);
-    const pendingTasks = tasks.filter((task) => !task.completed);
+    const completedTasks = tasks.filter((task) => task.isCompleted);
+    const pendingTasks = tasks.filter((task) => !task.isCompleted);
 
     return (
-        <div className="justify-center items-center flex flex-col">
+        <div className="justify-center items-center flex flex-col border-2 border-gray-300/30 rounded-md p-6 m-6 text-xl">
             {pendingTasks.length === 0 ? <h1>Aún no hay tareas</h1> : null}
             <ListOfTasks
                 tasks={pendingTasks}

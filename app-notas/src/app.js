@@ -36,6 +36,17 @@ app.delete("/:id", (req, res) => {
     res.status(204).end();
 });
 
+app.put("/:id", (req, res) => {
+    const id = req.params.id;
+    const index = tasks.findIndex((task) => String(task.id) === String(id));
+    if (index === -1) {
+        return res.status(404).json({ error: "Tarea no encontrada" });
+    }
+    tasks[index].isCompleted = req.body.completed;
+    fs.writeFileSync("./src/tasks.json", JSON.stringify({ tasks }, null, 2));
+    res.status(200).json(tasks[index]);
+});
+
 app.listen(3000, () => {
     console.log("Server is running on port 3000");
 });
